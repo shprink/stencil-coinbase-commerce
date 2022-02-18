@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
+    <title>Stencil Component Starter</title>
+
+    <script type="module" src="/build/stencil-coinbase-commerce.esm.js"></script>
+    <script nomodule src="/build/stencil-coinbase-commerce.js"></script>
+    <style>
+      cc-iframe::part(loader) {
+        position: absolute;
+        display: flex;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        align-items: center;
+        justify-content: center;
+      }
+      cc-iframe::part(iframe) {
+        background-color: rgba(0, 0, 0, 0.5);
+        width: 800px;
+        height: 500px;
+      }
+
+      @keyframes spin {
+        100% {
+          -webkit-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+      cc-iframe svg {
+        color: white;
+        width: 60px;
+        height: 60px;
+        animation: spin 4s linear infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <my-component first="Stencil" last="'Don't call me a framework' JS"></my-component>
+    <cc-button></cc-button>
+    <cc-button classnames="test">Payer en Crypto</cc-button>
+    <button id="openCheckout">Open Checkout with template</button>
+    <dialog id="checkoutModal"></dialog>
+    <button id="openCharge">Open Charge</button>
+    <dialog id="chargeModal">
+      <cc-iframe id="charge" charge-id="f765421f2-1451-fafb-a513-aac6c819fba9"></cc-iframe>
+    </dialog>
+
+    <template id="checkoutTemplate">
+      <cc-iframe id="checkout" checkout-id="30934862-d980-46cb-9402-43c81b0cabd5">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+          />
+        </svg>
+      </cc-iframe>
+    </template>
+
+    <script>
+      const checkoutModal = document.getElementById('checkoutModal');
+      const checkoutButton = document.getElementById('openCheckout');
+      const checkoutTemplate = document.getElementById('checkoutTemplate');
+
+      checkoutButton.addEventListener('click', function onOpen() {
+        const checkoutClone = checkoutTemplate.content.cloneNode(true);
+        checkoutModal.appendChild(checkoutClone);
+        const checkoutIframe = checkoutModal.children[0];
+        checkoutIframe.addEventListener('iframeLoaded', function (event) {
+          console.log('event:checkout iframeLoaded', { event });
+        });
+        checkoutIframe.addEventListener('iframeError', function (event) {
+          console.log('event:charge iframeError', { event });
+        });
+        checkoutIframe.addEventListener('rendered', function (event) {
+          console.log('event:checkout rendered', { event });
+        });
+        checkoutIframe.addEventListener('iframeClosed', function (event) {
+          console.log('event:checkout iframeClosed', { event });
+          if (typeof checkoutModal.close === 'function') {
+            checkoutModal.close();
+            checkoutModal.innerHTML = '';
+          }
+        });
+        checkoutIframe.addEventListener('checkoutSuccess', function (event) {
+          console.log('event:checkout checkoutSuccess', { event });
+        });
+        checkoutIframe.addEventListener('checkoutFailure', function (event) {
+          console.log('event:checkout checkoutFailure', { event });
+        });
+        checkoutIframe.addEventListener('paymentDetected', function (event) {
+          console.log('event:checkout paymentDetected', { event });
+        });
+        checkoutIframe.addEventListener('errorChange', function (event) {
+          console.log('event:checkout errorChange', { event });
+        });
+        if (typeof checkoutModal.showModal === 'function') {
+          checkoutModal.showModal();
+        } else {
+          alert('The <dialog> API is not supported by this browser');
+        }
+      });
+    </script>
+    <script>
+      const chargeModal = document.getElementById('chargeModal');
+      const chargeButton = document.getElementById('openCharge');
+
+      chargeButton.addEventListener('click', function onOpen() {
+        if (typeof chargeModal.showModal === 'function') {
+          chargeModal.showModal();
+        } else {
+          alert('The <dialog> API is not supported by this browser');
+        }
+      });
+
+      const chargeIframe = document.getElementById('charge');
+      chargeIframe.addEventListener('iframeLoaded', function (event) {
+        console.log('event:charge iframeLoaded', { event });
+      });
+      chargeIframe.addEventListener('iframeError', function (event) {
+        console.log('event:charge iframeError', { event });
+      });
+      chargeIframe.addEventListener('rendered', function (event) {
+        console.log('event:charge rendered', { event });
+      });
+      chargeIframe.addEventListener('iframeClosed', function (event) {
+        console.log('event:charge iframeClosed', { event });
+        if (typeof chargeModal.close === 'function') {
+          chargeModal.close();
+        }
+      });
+      chargeIframe.addEventListener('chargeSuccess', function (event) {
+        console.log('event:charge chargeSuccess', { event });
+      });
+      chargeIframe.addEventListener('chargeFailure', function (event) {
+        console.log('event:charge chargeFailure', { event });
+      });
+      chargeIframe.addEventListener('paymentDetected', function (event) {
+        console.log('event:charge paymentDetected', { event });
+      });
+      chargeIframe.addEventListener('errorChange', function (event) {
+        console.log('event:charge errorChange', { event });
+      });
+    </script>
+  </body>
+</html>
